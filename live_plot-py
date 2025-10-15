@@ -1,0 +1,32 @@
+import time
+import requests
+import matplotlib.pyplot as plt
+from datetime import datetime
+
+def fetch_price():
+    resp = requests.get("https://api.coindesk.com/v1/bpi/currentprice/BTC.json")
+    data = resp.json()
+    return float(data["bpi"]["USD"]["rate"].replace(",", ""))
+
+def live_plot(duration=60, interval=5):
+    times = []
+    prices = []
+    plt.ion()
+    fig, ax = plt.subplots()
+    for _ in range(int(duration / interval)):
+        price = fetch_price()
+        now = datetime.now()
+        times.append(now)
+        prices.append(price)
+        ax.clear()
+        ax.plot(times, prices, marker="o")
+        ax.set_xlabel("Time")
+        ax.set_ylabel("Price (USD)")
+        ax.set_title("Live Bitcoin Price")
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.pause(interval)
+    plt.ioff()
+    plt.show()
+
+live_plot(duration=60, interval=5)
